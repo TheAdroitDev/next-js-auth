@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 
 connect();
 
-export async function GET(request:NextResponse) {
+export async function GET(request:NextRequest) {
     try {
         const userId = await getDataFromTokens(request);
         const user = await User.findOne({_id:userId}).select("-password");
