@@ -1,72 +1,75 @@
-"use client"
-import Link from "next/link";
-import { useEffect, useState } from "react";
-import React from "react";
-import { useRouter } from "next/navigation";
+'use client'
 import axios from "axios";
-import toast from "react-hot-toast";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
-export default function LoginPage() {
+export default function SignUp() {
     const router = useRouter();
-    const [user, setUser] = React.useState({
-        email: "",
-        password: "",
-    })
+    const [user, setUser] = useState({ email: "", password: "" });
     const [buttonDisabled, setButtonDisabled] = useState(false);
-    const [loading, setLoading] = useState(false)
+    const [loading, setLoading] = useState(false);
+    const [errorMessage, setErrorMessage] = useState(""); // State to store error message
+
     const onLogin = async () => {
         try {
             setLoading(true);
-            const response = await axios.post("/api/users/login", user)
-            console.log("Login Success", response.data)
-            toast.success("Login Success")
-            router.push("/profile")
+            setErrorMessage(""); // Clear previous errors
+            const response = await axios.post("api/users/login", user);
+            console.log("Login Success", response.data);
+            router.push("/profile");
         } catch (error: any) {
-            console.log("Login Failed", error.message)
-            toast.error(error.message)
+            console.log("Login failed!", error.response?.data?.error || error.message);
+            setErrorMessage(error.response?.data?.error || "Login failed!"); // Set error message
         } finally {
-            setLoading(false)
+            setLoading(false);
+            setButtonDisabled(false);
         }
-    }
+    };
+
     useEffect(() => {
         if (user.email.length > 0 && user.password.length > 0) {
-            setButtonDisabled(false)
+            setButtonDisabled(false);
         } else {
             setButtonDisabled(true);
         }
-    }, [user])
+    }, [user]);
 
     return (
-        <div className="flex flex-col justify-center items-center min-h-screen bg-gray-100">
-            <div className="bg-white shadow-lg rounded-lg p-8 w-full max-w-md text-black">
-                <h1 className="text-2xl font-bold text-center mb-6">{loading ? "Processing..." : "Login"}</h1>
-                <label htmlFor="email" className="block text-sm font-medium text-gray-700">Email</label>
-                <input 
-                    className="w-full px-4 py-2 mt-1 mb-4 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    type="email" 
-                    id="email" 
-                    value={user.email} 
-                    onChange={(e) => setUser({ ...user, email: e.target.value })} 
-                    placeholder="Enter your email"
+        <div className="flex flex-col justify-center items-center min-h-screen bg-gray-400">
+            <div className="bg-gray-500 shadow-lg rounded-lg w-full max-w-md p-8">
+                <h1 className="text-center text-2xl mb-6 text-white">
+                    {loading ? "Processing..." : 'Login'}
+                </h1>
+
+                {errorMessage && (
+                    <p className="text-red-500 text-center mb-4">{errorMessage}</p> // Display error message
+                )}
+
+                <label className="text-sm font-medium block text-gray-200" htmlFor="email">Email</label>
+                <input className="text-black mt-1 px-4 py-1 mb-4 rounded-md w-[65%] focus:w-[85%] transition-all duration-[400ms] focus:ring-4 focus:outline-none focus:ring-[#4682b4]" type="email" id="email" value={user.email} onChange={(e) => setUser({ ...user, email: e.target.value })} placeholder="Enter your email"
                 />
-                <label htmlFor="password" className="block text-sm font-medium text-gray-700">Password</label>
-                <input 
-                    className="w-full px-4 py-2 mt-1 mb-6 text-black border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    type="password" 
-                    id="password" 
-                    value={user.password} 
-                    onChange={(e) => setUser({ ...user, password: e.target.value })} 
+
+                <label className="text-sm font-medium block text-gray-200" htmlFor="password">Password</label>
+                <input
+                    className="text-black mt-1 px-4 py-1 mb-4 rounded-md w-[65%] focus:w-[85%] transition-all duration-[400ms] focus:ring-4 focus:outline-none focus:ring-[#4682b4]"
+                    type="password"
+                    id="password"
+                    value={user.password}
+                    onChange={(e) => setUser({ ...user, password: e.target.value })}
                     placeholder="Enter your password"
                 />
-                <button 
-                    onClick={onLogin} 
-                    className={`w-full py-2 font-semibold text-white rounded-md transition-colors ${buttonDisabled ? "bg-gray-400" : "bg-orange-500 hover:bg-orange-600"} focus:outline-none`}
+
+                <button
+                    className={`w-full py-2 transition-colors text-white rounded-lg ${buttonDisabled ? "bg-gray-400" : "bg-[#4682b4]"}`}
                     disabled={buttonDisabled}
+                    onClick={onLogin}
                 >
                     {loading ? "Logging in..." : buttonDisabled ? "Enter your details" : "Login"}
                 </button>
+
                 <div className="mt-4 text-center">
-                    <Link href="/signup" className="text-orange-500 hover:text-orange-600 text-sm">Don't have an account? Sign Up</Link>
+                    <Link href="/signup">Don't have an account? Signup</Link>
                 </div>
             </div>
         </div>
